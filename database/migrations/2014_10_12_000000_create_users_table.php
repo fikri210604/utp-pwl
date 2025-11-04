@@ -15,14 +15,15 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('role');
-            $table->string('jabatan');
-            $table->string('tanda_tangan')->nullable();
+            $table->enum('role', ['admin', 'pengurus', 'user']); 
+            $table->string('jabatan')->nullable(); 
+            $table->string('tanda_tangan')->nullable(); 
+            $table->softDeletes();
             $table->rememberToken();
             $table->timestamps();
         });
+        
     }
 
     /**

@@ -12,13 +12,10 @@ return new class extends Migration {
     {
         Schema::create('nomor_surat', function (Blueprint $table) {
             $table->id();
+            $table->string('kode_pihak', 50)->unique(); 
+            $table->string('nama_pihak', 100);          
+            $table->boolean('is_aktif')->default(true); 
             $table->timestamps();
-            $table->string('kode_surat')->unique();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('jenis_surat');
-            $table->year('tahun_surat');
-            $table->string('format_nomor_surat');
-            $table->softDeletes();
         });
     }
 
@@ -27,6 +24,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('kategori_surats');
+        Schema::dropIfExists('nomor_surat');
     }
 };
