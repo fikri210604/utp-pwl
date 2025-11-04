@@ -16,7 +16,7 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-secondary small">Surat Masuk</div>
-                        <div class="fs-4 fw-semibold">@isset($incomingCount){{ $incomingCount }}@else-&@endisset</div>
+                        <div class="fs-4 fw-semibold">{{ $totalSuratMasuk}}</div>
                     </div>
                     <a class="btn btn-sm btn-primary" href="{{ route('incoming-letters.index') }}">Lihat</a>
                 </div>
@@ -30,7 +30,7 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-secondary small">Surat Keluar</div>
-                        <div class="fs-4 fw-semibold">@isset($outgoingCount){{ $outgoingCount }}@else-&@endisset</div>
+                        <div class="fs-4 fw-semibold">{{ $totalSuratKeluar }}</div>
                     </div>
                     <a class="btn btn-sm btn-primary" href="{{ route('outgoing-letters.index') }}">Lihat</a>
                 </div>
