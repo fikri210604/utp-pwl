@@ -30,9 +30,9 @@ return new class extends Migration {
 
             $table->string('penandatangan')->nullable(); 
             $table->string('tanda_tangan')->nullable(); 
-            $table->enum('status_ttd', ['belum', 'ditandatangani'])->default('belum');
+            $table->enum('status_surat', ['draft', 'dicetak', 'dikirim', 'selesai'])->default('draft');
 
-            $table->string('file_pdf')->nullable(); // hasil generate surat (opsional)
+            $table->string('file_pdf')->nullable(); 
 
             $table->softDeletes();
             $table->timestamps();

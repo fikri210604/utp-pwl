@@ -9,19 +9,21 @@ return new class extends Migration {
     {
         Schema::create('surat_masuks', function (Blueprint $table) {
             $table->id();
-            $table->string('nomor_surat')->unique()->index();
-            $table->date('tanggal_surat');
-            
-            $table->foreignId('nomor_surat_id')->constrained('nomor_surat')->onDelete('cascade');
 
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            
-            $table->string('pengirim');
-            $table->string('penerima'); 
+            // Nomor surat dari pihak eksternal (manual input)
+            $table->string('nomor_surat')->unique();
+            $table->date('tanggal_surat');
+
+            // Relasi ke user (yang menerima atau yang input data)
+            $table->foreignId('penerima_id')
+                  ->constrained('users')
+                  ->onDelete('cascade');
+
+            $table->string('pengirim'); // nama instansi/individu pengirim surat
             $table->string('perihal');
             $table->date('tanggal_diterima')->nullable();
             $table->text('keterangan')->nullable();
-            $table->text('file_path')->nullable(); 
+            $table->string('file_path')->nullable(); // path file PDF surat
             
             $table->softDeletes();
             $table->timestamps();
