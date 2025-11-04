@@ -28,6 +28,13 @@
                     <td>{{ $letter->perihal }}</td>
                     <td>
                         <a class="btn btn-secondary" href="{{ route('outgoing-letters.show', $letter) }}">Lihat</a>
+                        <a class="btn" href="{{ route('outgoing-letters.edit', $letter) }}">Edit</a>
+                        <a class="btn" target="_blank" href="{{ route('outgoing-letters.pdf', $letter) }}">Lihat/Print PDF</a>
+                        <form action="{{ route('outgoing-letters.destroy', $letter) }}" method="POST" style="display:inline" onsubmit="return confirm('Yakin hapus surat ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">Hapus</button>
+                        </form>
                     </td>
                 </tr>
             @empty

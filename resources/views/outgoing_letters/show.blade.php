@@ -7,7 +7,8 @@
         <div style="display:flex; justify-content:space-between; align-items:center; gap:.5rem;">
             <h1 style="margin-top:0;">Surat Keluar</h1>
             <div style="display:flex; gap:.5rem;">
-                <a class="btn" href="{{ route('outgoing-letters.pdf', $letter) }}">Download PDF</a>
+                <a class="btn" target="_blank" href="{{ route('outgoing-letters.pdf', $letter) }}">Lihat/Print PDF</a>
+                <a class="btn btn-secondary" href="{{ route('outgoing-letters.edit', $letter) }}">Edit</a>
                 <button class="btn btn-secondary" onclick="window.print()">Cetak via Browser</button>
             </div>
         </div>
@@ -32,7 +33,7 @@
                 <div style="font-weight:600;">Perihal: {{ $letter->perihal }}</div>
             </div>
 
-            <div style="white-space:pre-wrap; min-height:200px;">{!! nl2br(e($letter->isi_surat)) !!}</div>
+            <div style="min-height:200px;">{!! $letter->isi_surat !!}</div>
 
             <div style="display:flex; justify-content:flex-end; margin-top:2rem;">
                 <div style="text-align:left;">
@@ -43,8 +44,13 @@
             </div>
         </div>
 
-        <div style="margin-top:1rem;">
+        <div style="margin-top:1rem; display:flex; gap:.5rem;">
             <a class="btn btn-secondary" href="{{ route('outgoing-letters.index') }}">Kembali</a>
+            <form action="{{ route('outgoing-letters.destroy', $letter) }}" method="POST" onsubmit="return confirm('Yakin hapus surat ini?')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger">Hapus</button>
+            </form>
         </div>
     </div>
 

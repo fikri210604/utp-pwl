@@ -10,6 +10,9 @@
             <a href="{{ route('outgoing-letters.index') }}" class="nav-link {{ request()->routeIs('outgoing-letters.*') ? 'active fw-semibold' : '' }}">
                 Surat Keluar
             </a>
+            <a href="{{ route('user_manajemen.index') }}" class="nav-link {{ request()->routeIs('user_manajemen.*') ? 'active fw-semibold' : '' }}">
+                User
+            </a>
         </div>
 
         @auth

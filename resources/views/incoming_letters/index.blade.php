@@ -41,7 +41,6 @@
             </tbody>
         </table>
 
-        <div style="margin-top:1rem;">{{ $letters->links() }}</div>
     </div>
 @endsection
 

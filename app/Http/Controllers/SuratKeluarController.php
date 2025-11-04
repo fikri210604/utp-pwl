@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\SuratKeluar;
 use App\Models\NomorSurat;
 use Illuminate\Http\Request;
-use Spatie\LaravelPdf\Facades\Pdf;
-use Spatie\LaravelPdf\Enums\Format;
-
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 class SuratKeluarController extends Controller
 {
     /**
@@ -29,8 +29,22 @@ class SuratKeluarController extends Controller
     }
 
     /**
+     * Form edit surat keluar.
+     */
+    public function edit(SuratKeluar $outgoing_letter)
+    {
+        return view('outgoing_letters.edit', ['letter' => $outgoing_letter]);
+    }
+
+    /**
      * Simpan surat keluar baru dan generate nomor otomatis.
      */
+
+    public function show(SuratKeluar $outgoing_letter)
+    {
+        return view('outgoing_letters.show', ['letter' => $outgoing_letter]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -42,8 +56,35 @@ class SuratKeluarController extends Controller
             'nomor_surat_id' => 'required|exists:nomor_surat,id',
         ]);
 
-        // Buat surat kosong untuk mendapatkan ID increment
-        $surat = SuratKeluar::create([
+        // Ambil data pihak
+        $pihak = NomorSurat::findOrFail($validated['nomor_surat_id']);
+
+        // Dapatkan id berikutnya secara aman (PostgreSQL) atau fallback ke max+1
+        $nextId = null;
+        try {
+            $row = DB::selectOne("SELECT nextval(pg_get_serial_sequence('surat_keluars','id')) AS id");
+            $nextId = $row->id ?? null;
+        } catch (\Throwable $e) {
+            $nextId = (SuratKeluar::max('id') ?? 0) + 1;
+        }
+
+        // Generate nomor surat menggunakan id yang akan dipakai
+        $nomorSurat = $this->generateNomorSurat($nextId, $pihak, $validated['tanggal_surat']);
+
+        // Validasi: nomor urut (segmen pertama) tidak boleh sama
+        $nomorUrut = $this->extractNomorUrut($nomorSurat);
+        if ($nomorUrut !== null) {
+            $existsUrut = SuratKeluar::where('nomor_surat', 'LIKE', $nomorUrut . '/%')->exists();
+            if ($existsUrut) {
+                return back()
+                    ->withErrors(['nomor_surat' => 'Nomor urut surat sudah digunakan. Gunakan nomor urut lain.'])
+                    ->withInput();
+            }
+        }
+
+        // Simpan data dengan id dan nomor_surat sudah terisi
+        $surat = new SuratKeluar([
+            'nomor_surat'     => $nomorSurat,
             'tanggal_surat'   => $validated['tanggal_surat'],
             'tujuan'          => $validated['tujuan'],
             'perihal'         => $validated['perihal'],
@@ -53,15 +94,9 @@ class SuratKeluarController extends Controller
             'nomor_surat_id'  => $validated['nomor_surat_id'],
             'status_surat'    => 'draft',
         ]);
-
-        // Ambil data pihak
-        $pihak = NomorSurat::findOrFail($validated['nomor_surat_id']);
-
-        // Generate nomor surat (gabung romawi di sini)
-        $nomorSurat = $this->generateNomorSurat($surat->id, $pihak, $validated['tanggal_surat']);
-
-        // Update surat dengan nomor surat final
-        $surat->update(['nomor_surat' => $nomorSurat]);
+        // Set id eksplisit agar sesuai dengan nomor_surat yang dihasilkan
+        $surat->id = $nextId;
+        $surat->save();
 
         return redirect()
             ->route('outgoing-letters.show', $surat)
@@ -75,7 +110,7 @@ class SuratKeluarController extends Controller
      */
     private function generateNomorSurat(int $id, NomorSurat $pihak, string $tanggal): string
     {
-        $bulan = date('n', strtotime($tanggal));
+        $bulan = (int) date('n', strtotime($tanggal));
         $tahun = date('Y', strtotime($tanggal));
 
         // Konversi bulan ke angka romawi langsung di sini
@@ -97,11 +132,24 @@ class SuratKeluarController extends Controller
     }
 
     /**
+     * Ambil segmen pertama (nomor urut) dari nomor_surat.
+     */
+    private function extractNomorUrut(string $nomorSurat): ?string
+    {
+        $parts = explode('/', $nomorSurat);
+        if (count($parts) >= 1 && $parts[0] !== '') {
+            return $parts[0];
+        }
+        return null;
+    }
+
+    /**
      * Update surat keluar (tanpa ubah nomor surat).
      */
     public function update(Request $request, SuratKeluar $outgoing_letter)
     {
         $validated = $request->validate([
+            'nomor_surat'     => 'required|string|max:255|unique:surat_keluars,nomor_surat,' . $outgoing_letter->id,
             'tanggal_surat'   => 'required|date',
             'tujuan'          => 'required|string|max:255',
             'perihal'         => 'required|string|max:255',
@@ -109,6 +157,19 @@ class SuratKeluarController extends Controller
             'penandatangan'   => 'nullable|string|max:255',
             'status_surat'    => 'nullable|in:draft,dicetak,dikirim,selesai',
         ]);
+
+        // Validasi tambahan: nomor urut (segmen pertama) tidak boleh sama dengan surat lain
+        $nomorUrut = $this->extractNomorUrut($validated['nomor_surat']);
+        if ($nomorUrut !== null) {
+            $existsUrut = SuratKeluar::where('id', '<>', $outgoing_letter->id)
+                ->where('nomor_surat', 'LIKE', $nomorUrut . '/%')
+                ->exists();
+            if ($existsUrut) {
+                return back()
+                    ->withErrors(['nomor_surat' => 'Nomor urut surat sudah digunakan. Gunakan nomor urut lain.'])
+                    ->withInput();
+            }
+        }
 
         $outgoing_letter->update($validated);
 
@@ -120,21 +181,40 @@ class SuratKeluarController extends Controller
     /**
      * Generate surat keluar ke PDF.
      */
+
+    
     public function generateSuratKeluar(SuratKeluar $outgoing_letter)
     {
-        $filename = 'Surat ' . preg_replace('/[^a-zA-Z0-9-_.]/', '-', $outgoing_letter->perihal) . '.pdf';
-        $chromePath = env('CHROME_PATH');
-        $nodeBinary = env('NODE_BINARY');
+        $slug = trim(preg_replace('/[^a-zA-Z0-9-_.]+/', '-', $outgoing_letter->perihal), '-');
+        $filename = 'Surat-' . ($slug ?: 'tanpa-judul') . '.pdf';
 
-        $pdf = Pdf::view('outgoing_letters.pdf', [
+        $pdf = Pdf::loadView('outgoing_letters.pdf', [
                 'letter' => $outgoing_letter,
             ])
-            ->format(Format::A4)
-            ->withBrowsershot(function ($browsershot) use ($chromePath, $nodeBinary) {
-                if ($chromePath) $browsershot->setChromePath($chromePath);
-                if ($nodeBinary) $browsershot->setNodeBinary($nodeBinary);
-            });
+            ->setPaper('a4', 'portrait');
 
-        return $pdf->download($filename);
+        // Pastikan direktori di disk public tersedia
+        Storage::disk('public')->makeDirectory('surat_keluars');
+        $relativePath = 'surat_keluars/' . $outgoing_letter->id . '-' . $filename;
+        $absolutePath = Storage::disk('public')->path($relativePath);
+        $pdf->save($absolutePath);
+
+        // Update kolom file_pdf dan status
+        $outgoing_letter->update([
+            'file_pdf' => $relativePath,
+            'status_surat' => 'dicetak',
+        ]);
+
+        // Unduh file ke user (paksa download)
+        return Storage::disk('public')->download($relativePath, $filename);
+    }
+
+    public function destroy(SuratKeluar $outgoing_letter)
+    {
+        if ($outgoing_letter->file_pdf && Storage::disk('public')->exists($outgoing_letter->file_pdf)) {
+            Storage::disk('public')->delete($outgoing_letter->file_pdf);
+        }
+        $outgoing_letter->delete();
+        return redirect()->route('outgoing-letters.index')->with('success', 'Surat keluar berhasil dihapus');
     }
 }
