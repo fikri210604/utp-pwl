@@ -14,10 +14,12 @@ class SuratMasuk extends Model
         'nomor_surat',
         'tanggal_surat',
         'pengirim',
+        'penerima_id',
         'perihal',
         'tanggal_diterima',
         'keterangan',
         'file_path',
+        'user_id',
     ];
+    
 }
-

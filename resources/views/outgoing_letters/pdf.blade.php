@@ -39,7 +39,7 @@
 
     <div class="section bold">Perihal: {{ $letter->perihal }}</div>
 
-    <div class="section isi">{!! nl2br(e($letter->isi_surat)) !!}</div>
+    <div class="section isi">{!! $letter->isi_surat !!}</div>
 
     <div class="ttd">
         <div class="box">

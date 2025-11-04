@@ -19,6 +19,19 @@ class SuratKeluar extends Model
         'perihal',
         'isi_surat',
         'penandatangan',
+        'user_id',
+        'nomor_surat_id',
+        'status_surat',
+        'file_pdf',
     ];
-}
 
+    public function nomorSurat()
+    {
+        return $this->belongsTo(NomorSurat::class, 'nomor_surat_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+}

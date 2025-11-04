@@ -15,9 +15,8 @@
             <div>Keterangan</div><div>: {{ $letter->keterangan ?? '-' }}</div>
             <div>Berkas</div>
             <div>:
-                @php($url = $letter->file_path ? Storage::url($letter->file_path) : null)
-                @if ($url)
-                    <a class="btn btn-secondary" target="_blank" href="{{ $url }}">Buka PDF</a>
+                @if ($letter->file_path)
+                    <a class="btn btn-secondary" target="_blank" href="{{ asset('storage/'.$letter->file_path) }}">Buka PDF</a>
                 @else
                     -
                 @endif
@@ -29,4 +28,3 @@
         </div>
     </div>
 @endsection
-
