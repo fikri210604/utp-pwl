@@ -5,6 +5,7 @@ use App\Http\Controllers\SuratMasukController;
 use App\Http\Controllers\SuratKeluarController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserManajemenController;
+use App\Http\Controllers\NomorSuratController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -35,6 +36,10 @@ Route::middleware('loginuser')->group(function () {
     Route::resource('outgoing-letters', SuratKeluarController::class)->only([
         'index', 'create', 'store', 'show', 'edit', 'update', 'destroy'
     ]);
+
+    // Manajemen Kode Surat (modal-based CRUD)
+    Route::resource('letter_code', NomorSuratController::class)
+        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     
     // Manajemen User (modal-based CRUD)
     Route::resource('user_manajemen', UserManajemenController::class)

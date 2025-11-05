@@ -13,6 +13,9 @@
             <a href="{{ route('user_manajemen.index') }}" class="nav-link {{ request()->routeIs('user_manajemen.*') ? 'active fw-semibold' : '' }}">
                 User
             </a>
+            <a href="{{ route('letter_code.index') }}" class="nav-link {{ request()->routeIs('nomor-surat.*') ? 'active fw-semibold' : '' }}">
+                Kode Surat
+            </a>
         </div>
 
         @auth

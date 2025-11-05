@@ -11,7 +11,7 @@ class UserManajemenController extends Controller
 {
     public function index()
     {
-        $user = User::all();
+        $user = User::latest()->paginate(10);
         return view('user_manajemen.index', compact('user'));
     }
 

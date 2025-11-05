@@ -11,7 +11,7 @@ class SuratMasukController extends Controller
 {
     public function index()
     {
-        $letters = SuratMasuk::all();
+        $letters = SuratMasuk::latest()->paginate(10);
         return view('incoming_letters.index', compact('letters'));
     }
 
