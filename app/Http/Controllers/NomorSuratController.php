@@ -14,7 +14,7 @@ class NomorSuratController extends Controller
     {
         // Diubah dari $nomor_surat menjadi $letter_code
         $letter_code = NomorSurat::latest()->paginate(10);
-        
+
         // Sekarang variabel $letter_code sesuai dengan string 'letter_code'
         return view('letter_code.index', compact('letter_code'));
     }
@@ -32,32 +32,32 @@ class NomorSuratController extends Controller
      */
     public function store(Request $request)
     {
+        // Validasi dasar
         $request->validate([
-            'kode_pihak' => 'string|max:50|unique:nomor_surat,kode_pihak',
             'nama_pihak' => 'required|string|max:100',
-            'is_acara'   => 'nullable|boolean',
+            'is_acara' => 'nullable|boolean',
         ]);
 
-        // Ambil kode input & ubah ke huruf besar
-        $kode = $request->nama_pihak;
+        // Jika BUKAN acara maka kode_pihak wajib manual
+        if (!$request->boolean('is_acara')) {
+            $request->validate([
+                'kode_pihak' => 'required|string|max:50|unique:nomor_surat,kode_pihak',
+            ]);
 
-        // Jika kegiatan (acara), tambahkan prefix PAN-
-        if ($request->boolean('is_acara')) {
-            if (!str_starts_with($kode, 'PAN-')) {
-                $kode = 'PAN-' . $kode;
-            }
+            $kode = strtoupper($request->kode_pihak);
+        } else {
+            $kode = 'PAN-' . trim($request->nama_pihak); 
         }
 
-        // Simpan ke database
         NomorSurat::create([
             'kode_pihak' => $kode,
             'nama_pihak' => $request->nama_pihak,
         ]);
 
-        // Route ini sudah benar
         return redirect()->route('letter_code.index')
             ->with('success', 'Kode pihak berhasil ditambahkan!');
     }
+
 
     /**
      * Form edit kode pihak.
@@ -79,7 +79,7 @@ class NomorSuratController extends Controller
             // Menggunakan $letterCode->id
             'kode_pihak' => 'required|string|max:50|unique:nomor_surat,kode_pihak,' . $letterCode->id,
             'nama_pihak' => 'required|string|max:100',
-            'is_acara'   => 'nullable|boolean',
+            'is_acara' => 'nullable|boolean',
         ]);
 
         $kode = strtoupper($request->kode_pihak);
