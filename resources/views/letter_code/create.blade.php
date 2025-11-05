@@ -11,8 +11,15 @@
             @csrf
 
             <div class="mb-3">
+                <label for="kode_pihak" class="form-label">Kode Pihak/Acara</label>
+                <input type="text" class="form-control" id="kode_pihak" name="kode_pihak">
+            </div>
+            <div class="mb-3">
                 <label for="nama_pihak" class="form-label">Nama Pihak/Acara</label>
                 <input type="text" class="form-control" id="nama_pihak" name="nama_pihak" required>
+                @error('nama_pihak')
+                    <div class="text-danger small">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="mb-3 form-check">
