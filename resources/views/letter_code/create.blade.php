@@ -13,6 +13,7 @@
             <div class="mb-3">
                 <label for="kode_pihak" class="form-label">Kode Pihak/Acara</label>
                 <input type="text" class="form-control" id="kode_pihak" name="kode_pihak">
+                <div class="form-text">Jika kode dibuat untuk acara, maka tidak perlu diisi Kode Pihak ini</div>
             </div>
             <div class="mb-3">
                 <label for="nama_pihak" class="form-label">Nama Pihak/Acara</label>
