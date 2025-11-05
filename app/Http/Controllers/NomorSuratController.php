@@ -33,13 +33,13 @@ class NomorSuratController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'kode_pihak' => 'required|string|max:50|unique:nomor_surat,kode_pihak',
+            'kode_pihak' => 'string|max:50|unique:nomor_surat,kode_pihak',
             'nama_pihak' => 'required|string|max:100',
             'is_acara'   => 'nullable|boolean',
         ]);
 
         // Ambil kode input & ubah ke huruf besar
-        $kode = strtoupper($request->kode_pihak);
+        $kode = $request->nama_pihak;
 
         // Jika kegiatan (acara), tambahkan prefix PAN-
         if ($request->boolean('is_acara')) {
