@@ -1,3 +1,4 @@
+
 <div class="collapse d-lg-block min-vh-100" id="appSidebar" style="background-color: #2563eb; border-top-right-radius: 1.5rem; border-bottom-right-radius: 1.5rem;">
     <div class="p-4 d-flex flex-column h-100 text-white">
 

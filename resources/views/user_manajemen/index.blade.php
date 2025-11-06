@@ -14,13 +14,13 @@
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
             <tr>
-              <th style="width:60px">#</th>
+              <th class="text-center">#</th>
               <th>Nama</th>
               <th>Email</th>
               <th>Role</th>
               <th>Jabatan</th>
               <th>Tanda Tangan</th>
-              <th style="width:180px">Aksi</th>
+              <th class="text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -38,10 +38,16 @@
                   <span class="text-muted">-</span>
                 @endif
               </td>
-              <td>
-                <div class="btn-group" role="group">
-                  <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editUserModal-{{ $u->id }}">Edit</button>
-                  <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal-{{ $u->id }}">Hapus</button>
+              <td class="text-center">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton-{{ $u->id }}" data-bs-toggle="dropdown" aria-expanded="false" title="Pilih Aksi">
+                        <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-{{ $u->id }}">
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editUserModal-{{ $u->id }}"><i class="bi bi-pencil-fill me-2"></i>Edit</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteUserModal-{{ $u->id }}"><i class="bi bi-trash-fill me-2"></i>Hapus</a></li>
+                    </ul>
                 </div>
               </td>
             </tr>
@@ -122,8 +128,13 @@
             </tr>
           @endforelse
           </tbody>
-        </table>
       </div>
+
+      @if ($user->hasPages())
+      <div class="p-3 border-top">
+        {{ $user->links() }}
+      </div>
+      @endif
     </div>
   </div>
 
