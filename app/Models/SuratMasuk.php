@@ -21,5 +21,13 @@ class SuratMasuk extends Model
         'file_path',
         'user_id',
     ];
+
+    /**
+     * Mendapatkan user (penerima) yang terkait dengan surat masuk.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'penerima_id');
+    }
     
 }
