@@ -2,21 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\NomorSurat;
+use App\Models\NomorSurat; // Pastikan model Anda ada di 'App\Models\NomorSurat'
 use Illuminate\Http\Request;
 
 class NomorSuratController extends Controller
 {
     /**
-     * Tampilkan daftar semua kode pihak.
+     * Tampilkan daftar semua kode pihak (dengan search).
      */
     public function index()
     {
-        // Diubah dari $nomor_surat menjadi $letter_code
-        $letter_code = NomorSurat::latest()->paginate(10);
+        // Definisikan $search di luar 'if'
+        $search = request()->input('search');
 
-        // Sekarang variabel $letter_code sesuai dengan string 'letter_code'
-        return view('letter_code.index', compact('letter_code'));
+        $query = NomorSurat::query();
+
+        // Handle search
+        if ($search) {
+            $query->where('kode_pihak', 'like', '%' . $search . '%')
+                  ->orWhere('nama_pihak', 'like', '%' . $search . '%');
+        }
+
+        $letter_code = $query->latest()->paginate(10);
+
+        // Kirim $letter_code dan $search ke view
+        return view('letter_code.index', compact('letter_code', 'search'));
     }
 
     /**
@@ -32,26 +42,25 @@ class NomorSuratController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi dasar
         $request->validate([
             'nama_pihak' => 'required|string|max:100',
+            'kode_pihak' => 'required|string|max:50|unique:nomor_surat,kode_pihak',
             'is_acara' => 'nullable|boolean',
         ]);
 
-        // Jika BUKAN acara maka kode_pihak wajib manual
-        if (!$request->boolean('is_acara')) {
-            $request->validate([
-                'kode_pihak' => 'required|string|max:50|unique:nomor_surat,kode_pihak',
-            ]);
+        $kode = strtoupper($request->kode_pihak);
 
-            $kode = strtoupper($request->kode_pihak);
-        } else {
-            $kode = 'PAN-' . trim($request->nama_pihak); 
+        // Tambahkan prefix PAN- jika 'is_acara' dicentang
+        if ($request->boolean('is_acara')) {
+            if (!str_starts_with($kode, 'PAN-')) {
+                $kode = 'PAN-' . $kode;
+            }
         }
 
         NomorSurat::create([
             'kode_pihak' => $kode,
             'nama_pihak' => $request->nama_pihak,
+            // 'is_acara' => $request->boolean('is_acara'), // (Opsional: jika Anda punya kolom ini)
         ]);
 
         return redirect()->route('letter_code.index')
@@ -62,42 +71,39 @@ class NomorSuratController extends Controller
     /**
      * Form edit kode pihak.
      */
-    // Diubah dari $nomorSurat menjadi $letterCode agar konsisten
     public function edit(NomorSurat $letterCode)
     {
-        // Diubah dari 'nomorSurat' menjadi 'letterCode'
+        // $letterCode otomatis diambil dari ID di URL (Route Model Binding)
         return view('letter_code.edit', compact('letterCode'));
     }
 
     /**
      * Update data kode pihak.
      */
-    // Diubah dari $nomorSurat menjadi $letterCode agar konsisten
     public function update(Request $request, NomorSurat $letterCode)
     {
         $request->validate([
-            // Menggunakan $letterCode->id
-            'kode_pihak' => 'required|string|max:50|unique:nomor_surat,kode_pihak,' . $letterCode->id,
             'nama_pihak' => 'required|string|max:100',
+            // Abaikan rule unique untuk ID $letterCode saat ini
+            'kode_pihak' => 'required|string|max:50|unique:nomor_surat,kode_pihak,' . $letterCode->id,
             'is_acara' => 'nullable|boolean',
         ]);
 
         $kode = strtoupper($request->kode_pihak);
 
-        // Tambahkan prefix PAN- kalau kegiatan
+        // Tambahkan prefix PAN- jika 'is_acara' dicentang
         if ($request->boolean('is_acara')) {
             if (!str_starts_with($kode, 'PAN-')) {
                 $kode = 'PAN-' . $kode;
             }
         }
 
-        // Update menggunakan $letterCode
         $letterCode->update([
             'kode_pihak' => $kode,
             'nama_pihak' => $request->nama_pihak,
+            // 'is_acara' => $request->boolean('is_acara'), // (Opsional)
         ]);
 
-        // Diubah dari 'nomor-surat.index' menjadi 'letter_code.index'
         return redirect()->route('letter_code.index')
             ->with('success', 'Data pihak berhasil diperbarui!');
     }
@@ -105,13 +111,10 @@ class NomorSuratController extends Controller
     /**
      * Hapus data pihak.
      */
-    // Diubah dari $nomorSurat menjadi $letterCode agar konsisten
     public function destroy(NomorSurat $letterCode)
     {
-        // Hapus menggunakan $letterCode
         $letterCode->delete();
 
-        // Diubah dari 'nomor-sura.index' menjadi 'letter_code.index'
         return redirect()->route('letter_code.index')
             ->with('success', 'Data pihak berhasil dihapus!');
     }
