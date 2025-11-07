@@ -11,8 +11,17 @@ class SuratMasukController extends Controller
 {
     public function index()
     {
-        $letters = SuratMasuk::latest()->paginate(10);
-        return view('incoming_letters.index', compact('letters'));
+        $search = request()->input('search');
+        $q = SuratMasuk::query();
+        if ($search) {
+            $q->where(function($w) use ($search) {
+                $w->where('nomor_surat', 'like', "%{$search}%")
+                  ->orWhere('pengirim', 'like', "%{$search}%")
+                  ->orWhere('perihal', 'like', "%{$search}%");
+            });
+        }
+        $letters = $q->latest()->paginate(10);
+        return view('incoming_letters.index', compact('letters','search'));
     }
 
     public function create()

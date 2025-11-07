@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['admin', 'pengurus', 'user']); 
+            $table->string('role'); 
             $table->string('jabatan')->nullable(); 
             $table->string('tanda_tangan')->nullable(); 
             $table->softDeletes();

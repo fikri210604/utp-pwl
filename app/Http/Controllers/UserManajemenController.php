@@ -11,8 +11,18 @@ class UserManajemenController extends Controller
 {
     public function index()
     {
-        $user = User::latest()->paginate(10);
-        return view('user_manajemen.index', compact('user'));
+        $search = request()->input('search');
+        $q = User::query();
+        if ($search) {
+            $q->where(function($w) use ($search) {
+                $w->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('role', 'like', "%{$search}%")
+                  ->orWhere('jabatan', 'like', "%{$search}%");
+            });
+        }
+        $user = $q->latest()->paginate(10);
+        return view('user_manajemen.index', compact('user','search'));
     }
 
     public function create()

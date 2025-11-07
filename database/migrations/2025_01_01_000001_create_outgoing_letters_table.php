@@ -8,31 +8,49 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('surat_keluars', function (Blueprint $table) {
-            $table->id();
+
+            // UUID sebagai primary key
+            $table->uuid('id')->primary();
 
             $table->string('nomor_surat')->unique();
-
             $table->date('tanggal_surat');
 
-            $table->foreignId('user_id')
-                ->constrained('users')
-                ->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
 
-
-            $table->foreignId('nomor_surat_id')
+            // Kode pihak (KETUM, SEKUM, PAN-Acara, dll)
+            $table->foreignId('kode_pihak_id')
                 ->nullable()
                 ->constrained('nomor_surat')
-                ->onDelete('set null');
+                ->nullOnDelete();
 
             $table->string('tujuan');
-            $table->string('perihal');
-            $table->longText('isi_surat');
 
-            $table->string('penandatangan')->nullable(); 
-            $table->string('tanda_tangan')->nullable(); 
-            $table->enum('status_surat', ['draft', 'dicetak', 'dikirim', 'selesai'])->default('draft');
+            // Menentukan jenis & template surat
+            $table->foreignId('perihal_surat_id')
+                ->references('perihal_surat_id')
+                ->on('perihal_surats')
+                ->cascadeOnDelete();
 
-            $table->string('file_pdf')->nullable(); 
+            // Field khusus untuk acara (dinamis tergantung jenis surat)
+            $table->string('nama_kegiatan')->nullable();
+            $table->string('lokasi_acara')->nullable();
+            $table->string('hari_tanggal')->nullable();
+            $table->string('waktu_acara')->nullable();
+
+            // Catatan / paragraf tambahan bebas
+            $table->longText('isi_tambahan')->nullable();
+
+            // Penandatangan dinamis
+            $table->foreignId('penandatangan_id')
+                ->references('penandatangan_id')
+                ->on('penandatangans')
+                ->cascadeOnDelete();
+
+            // File PDF hasil generate
+            $table->string('file_pdf')->nullable();
+
+            $table->enum('status_surat', ['draft', 'dicetak', 'dikirim', 'selesai'])
+                ->default('draft');
 
             $table->softDeletes();
             $table->timestamps();

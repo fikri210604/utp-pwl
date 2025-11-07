@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('surat_masuks', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('surat_masuk_id')->primary();
 
             // Nomor surat dari pihak eksternal (manual input)
             $table->string('nomor_surat')->unique();

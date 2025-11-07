@@ -19,7 +19,8 @@ class UserSeeder extends Seeder
               'name' => 'Admin',
               'email' => 'admin@example.com',
               'password' => Hash::make('admin123'),
-              'role' => 'admin',
+              // role dibatasi oleh enum: presidium, pimpinan, pengurus
+              'role' => 'presidium',
               'jabatan' => 'Admin'
            ]);
            $this->command->info('User berhasil dibuat');
