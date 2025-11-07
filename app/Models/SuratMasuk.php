@@ -11,6 +11,10 @@ class SuratMasuk extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $primaryKey = 'surat_masuk_id';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
     protected $fillable = [
         'nomor_surat',
         'tanggal_surat',

@@ -6,24 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('penandatangans', function (Blueprint $table) {
-            $table->id('penandatangan_id')->primary();
+            $table->id('penandatangan_id');
             $table->string('nama_penandatangan');
-            $table->bigInteger('nip_npm_penandatangan');
+            $table->string('nip_npm_penandatangan', 30)->nullable(); // lebih aman
             $table->string('jabatan_penandatangan');
-            $table->string('gambar_tandatangan');
+            $table->string('gambar_tandatangan')->nullable(); // upload opsional
+            $table->softDeletes();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('penandatangans');

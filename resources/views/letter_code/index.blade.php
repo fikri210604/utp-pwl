@@ -80,7 +80,7 @@
                 </div>
 
                 @if ($letter_code->hasPages())
-                <div class="mt-3 d-flex justify-content-center">
+                <div class="mt-6 d-flex justify-content-start">
                     {{ $letter_code->appends(request()->except('page'))->links() }}
                 </div>
                 @endif

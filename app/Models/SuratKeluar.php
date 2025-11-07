@@ -29,14 +29,9 @@ class SuratKeluar extends Model
         });
     }
 
-
-
-   
-
-    
     public function nomorSurat()
     {
-        return $this->belongsTo(NomorSurat::class, 'nomor_surat_id');
+        return $this->belongsTo(NomorSurat::class, 'kode_pihak_id');
     }
 
     public function user()
@@ -49,10 +44,37 @@ class SuratKeluar extends Model
         return $this->belongsTo(Penandatangan::class, 'penandatangan_id');
     }
 
-    public function perihalSurat()
+    public function penandatangans()
     {
-        return $this->belongsTo(PerihalSurat::class, 'perihal_surat_id');
+        return $this->belongsToMany(Penandatangan::class, 'surat_penandatangans', 'surat_keluar_id', 'penandatangan_id')
+            ->withPivot('urutan_ttd')
+            ->orderBy('surat_penandatangans.urutan_ttd');
     }
 
+    public function perihalSurat()
+    {
+        return $this->belongsTo(PerihalSurat::class, 'perihal_surat_id', 'perihal_surat_id');
+    }
+
+    // Compat accessors so existing views keep working
+    public function getPerihalAttribute()
+    {
+        return optional($this->perihalSurat)->nama_perihal;
+    }
+
+    public function getIsiSuratAttribute()
+    {
+        // Legacy field not used when templates are applied; return empty string to avoid errors
+        return '';
+    }
+
+    public function getPenujuAttribute()
+    {
+        if (!$this->nomor_surat) return null;
+        $parts = explode('/', (string) $this->nomor_surat);
+        return $parts[1] ?? null;
+    }
+
+    // Gunakan relasi penandatangan() untuk akses objek penandatangan.
 
 }

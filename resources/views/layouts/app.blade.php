@@ -18,21 +18,17 @@
     
 </head>
 <body class="bg-light">
-    @include('layouts.navbar')
-
+    
     @auth
+    @include('layouts.navbar')
+        <!-- Overlay untuk sidebar (mobile) -->
+        <div id="sidebarOverlay" class="sidebar-overlay"></div>
         <div class="container-fluid">
             <div class="row">
-                <aside class="col-12 col-lg-2 col-md-3 bg-white border-end min-vh-100 p-0">
+                <aside id="sidebarColumn" class="col-12 col-lg-2 col-md-3 bg-white border-end min-vh-100 p-0">
                     @include('layouts.sidebar')
                 </aside>
                 <main class="col-12 col-lg-10 col-md-9 p-4">
-                    @if (session('success'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
                     @yield('content')
                 </main>
             </div>
@@ -50,6 +46,29 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <style>
+      /* Sidebar overlay */
+      .sidebar-overlay { display:none; position: fixed; top: 56px; left:0; right:0; bottom:0; background: rgba(0,0,0,.35); z-index: 1040; }
+      .sidebar-overlay.show { display:block; }
+      /* Remove sidebar column height on mobile to let main content rise to top */
+      @media (max-width: 991.98px) {
+        #sidebarColumn { height: 0 !important; min-height: 0 !important; padding: 0 !important; border: 0 !important; }
+      }
+    </style>
+    <script>
+      (function(){
+        const sidebar = document.getElementById('appSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        if (sidebar && overlay && window.bootstrap) {
+          sidebar.addEventListener('shown.bs.collapse', function(){ overlay.classList.add('show'); document.body.style.overflow = 'hidden'; });
+          sidebar.addEventListener('hidden.bs.collapse', function(){ overlay.classList.remove('show'); document.body.style.overflow = ''; });
+          overlay.addEventListener('click', function(){
+            const instance = bootstrap.Collapse.getOrCreateInstance(sidebar);
+            instance.hide();
+          });
+        }
+      })();
+    </script>
     @stack('scripts')
     @yield('scripts')
 </body>

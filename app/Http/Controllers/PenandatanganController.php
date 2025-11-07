@@ -13,8 +13,17 @@ class PenandatanganController extends Controller
      */
     public function index()
     {
-        $penandatangan = Penandatangan::latest()->paginate(10);
-        return view('penandatangan.index', compact('penandatangan'));
+        $search = request()->input('search');
+        $q = Penandatangan::query();
+        if ($search) {
+            $q->where(function($w) use ($search) {
+                $w->where('nama_penandatangan', 'like', "%{$search}%")
+                  ->orWhere('nip_npm_penandatangan', 'like', "%{$search}%")
+                  ->orWhere('jabatan_penandatangan', 'like', "%{$search}%");
+            });
+        }
+        $penandatangan = $q->latest()->paginate(10);
+        return view('penandatangan.index', compact('penandatangan','search'));
     }
 
     /**

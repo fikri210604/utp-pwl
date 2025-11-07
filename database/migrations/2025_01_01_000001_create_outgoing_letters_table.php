@@ -27,7 +27,8 @@ return new class extends Migration {
 
             // Menentukan jenis & template surat
             $table->foreignId('perihal_surat_id')
-                ->constrained('perihal_surats')
+                ->references('perihal_surat_id')
+                ->on('perihal_surats')
                 ->cascadeOnDelete();
 
             // Field khusus untuk acara (dinamis tergantung jenis surat)
@@ -41,7 +42,8 @@ return new class extends Migration {
 
             // Penandatangan dinamis
             $table->foreignId('penandatangan_id')
-                ->constrained('penandatangans')
+                ->references('penandatangan_id')
+                ->on('penandatangans')
                 ->cascadeOnDelete();
 
             // File PDF hasil generate

@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->string('kode_pihak', 50)->unique(); 
             $table->string('nama_pihak', 100);          
             $table->boolean('is_aktif')->default(true); 
+            $table->softDeletes();
             $table->timestamps();
         });
     }

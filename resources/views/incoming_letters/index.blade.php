@@ -12,6 +12,13 @@
 
         <div class="card shadow-sm">
             <div class="card-body">
+                <form action="{{ route('incoming-letters.index') }}" method="GET" class="mb-3">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" placeholder="Cari nomor / pengirim / perihal..." value="{{ $search ?? '' }}">
+                        <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i> Cari</button>
+                        <a href="{{ route('incoming-letters.index') }}" class="btn btn-outline-danger" title="Reset Pencarian"><i class="bi bi-x-lg"></i></a>
+                    </div>
+                </form>
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead class="table-light">

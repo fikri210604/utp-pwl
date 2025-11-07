@@ -12,11 +12,19 @@
 
         <div class="card shadow-sm">
             <div class="card-body">
+                <form action="{{ route('outgoing-letters.index') }}" method="GET" class="mb-3">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" placeholder="Cari nomor / tujuan / perihal..." value="{{ $search ?? '' }}">
+                        <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i> Cari</button>
+                        <a href="{{ route('outgoing-letters.index') }}" class="btn btn-outline-danger" title="Reset Pencarian"><i class="bi bi-x-lg"></i></a>
+                    </div>
+                </form>
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead class="table-light">
                             <tr>
                                 <th>Nomor Surat</th>
+                                <th>Penuju</th>
                                 <th>Tanggal</th>
                                 <th>Tujuan</th>
                                 <th>Perihal</th>
@@ -27,6 +35,7 @@
                         @forelse($letters as $letter)
                             <tr>
                                 <td>{{ $letter->nomor_surat }}</td>
+                                <td>{{ $letter->penuju }}</td>
                                 <td>{{ \Illuminate\Support\Carbon::parse($letter->tanggal_surat)->format('d/m/Y') }}</td>
                                 <td>{{ $letter->tujuan }}</td>
                                 <td>{{ $letter->perihal }}</td>
@@ -57,9 +66,9 @@
                         </tbody>
                     </table>
                 </div>
-                @if ($letters->hasPages())
-                <div class="mt-3">
-                    {{ $letters->links() }}
+               @if ($letters->hasPages())
+                <div class="mt-6 d-flex justify-content-start">
+                    {{ $letters->appends(request()->except('page'))->links() }}
                 </div>
                 @endif
             </div>

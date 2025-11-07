@@ -12,9 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('perihal_surats', function (Blueprint $table) {
-            $table->id('perihal_surat_id')->primary();
+            $table->id('perihal_surat_id');
             $table->string('nama_perihal', 100);
-            $table->string('jenis_surat', 50)->unique();
+            // Jenis surat (undangan/peminjaman/lainnya) boleh berulang di beberapa perihal
+            $table->string('jenis_surat', 50)->index();
+            // Nama view blade untuk template preview/print, contoh: "templates.undangan"
+            $table->string('template_view')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
