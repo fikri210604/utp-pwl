@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->enum('role', ['admin', 'pengurus', 'user']); 
+            $table->enum('role', ['presidium','pimpinan','pengurus']); 
             $table->string('jabatan')->nullable(); 
             $table->string('tanda_tangan')->nullable(); 
             $table->softDeletes();
