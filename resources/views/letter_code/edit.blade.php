@@ -14,7 +14,7 @@
             <div class="mb-3">
                 <label for="kode_pihak" class="form-label">Kode Pihak</label>
                 {{-- Perbaikan: $nomorSurat diubah menjadi $letterCode --}}
-                <input type="text" class="form-control" id="kode_pihak" name="kode_pihak" value="{{ $letterCode->kode_pihak }}" required>
+                <input type="text" class="form-control" id="kode_pihak" name="kode_pihak" value="{{ $letterCode->kode_pihak }}">
             </div>
 
             <div class="mb-3">
@@ -41,3 +41,21 @@
         </form>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+  (function(){
+    const cb = document.getElementById('is_acara');
+    const kode = document.getElementById('kode_pihak');
+    function toggleKode(){
+      const isAcara = cb && cb.checked;
+      if (kode) {
+        kode.disabled = !!isAcara;
+        kode.placeholder = isAcara ? 'Akan di-generate: PAN-{NAMA PIHAK/ACARA}' : '';
+      }
+    }
+    if (cb) { cb.addEventListener('change', toggleKode); }
+    toggleKode();
+  })();
+</script>
+@endpush

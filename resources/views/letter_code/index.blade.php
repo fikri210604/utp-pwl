@@ -85,7 +85,7 @@
                     </div>
                     <div>
                         @if ($letter_code->hasPages())
-                            {{ $letter_code->appends(request()->except('page'))->links() }}
+                            {{ $letter_code->appends(request()->except('page'))->links('vendor.pagination.bootstrap-5-noinfo') }}
                         @endif
                     </div>
                 </div>

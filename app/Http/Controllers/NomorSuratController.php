@@ -42,25 +42,29 @@ class NomorSuratController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        // Validasi dinamis: kode_pihak hanya wajib jika bukan acara
+        $rules = [
             'nama_pihak' => 'required|string|max:100',
-            'kode_pihak' => 'required|string|max:50|unique:nomor_surat,kode_pihak',
-            'is_acara' => 'nullable|boolean',
-        ]);
+            'is_acara'   => 'nullable|boolean',
+        ];
+        if (!$request->boolean('is_acara')) {
+            $rules['kode_pihak'] = 'required|string|max:50|unique:nomor_surat,kode_pihak';
+        } else {
+            $rules['kode_pihak'] = 'nullable|string|max:50|unique:nomor_surat,kode_pihak';
+        }
+        $request->validate($rules);
 
-        $kode = strtoupper($request->nama_pihak);
-
-        // Tambahkan prefix PAN- jika 'is_acara' dicentang
+        // Susun kode
         if ($request->boolean('is_acara')) {
-            if (!str_starts_with($kode, 'PAN-')) {
-                $kode = 'PAN-' . $kode;
-            }
+            $base = strtoupper($request->input('nama_pihak'));
+            $kode = str_starts_with($base, 'PAN-') ? $base : ('PAN-' . $base);
+        } else {
+            $kode = strtoupper($request->input('kode_pihak'));
         }
 
         NomorSurat::create([
             'kode_pihak' => $kode,
-            'nama_pihak' => request('nama_pihak'),
-            // 'is_acara' => request()->boolean('is_acara'), // (Opsional: jika Anda punya kolom ini)
+            'nama_pihak' => $request->input('nama_pihak'),
         ]);
 
         return redirect()->route('letter_code.index')
@@ -82,25 +86,28 @@ class NomorSuratController extends Controller
      */
     public function update(Request $request, NomorSurat $letterCode)
     {
-        $request->validate([
+        // Validasi dinamis untuk update
+        $rules = [
             'nama_pihak' => 'required|string|max:100',
-            'kode_pihak' => 'required|string|max:50|unique:nomor_surat,kode_pihak,' . $letterCode->id,
-            'is_acara' => 'nullable|boolean',
-        ]);
+            'is_acara'   => 'nullable|boolean',
+        ];
+        if (!$request->boolean('is_acara')) {
+            $rules['kode_pihak'] = 'required|string|max:50|unique:nomor_surat,kode_pihak,' . $letterCode->id;
+        } else {
+            $rules['kode_pihak'] = 'nullable|string|max:50|unique:nomor_surat,kode_pihak,' . $letterCode->id;
+        }
+        $request->validate($rules);
 
-        $kode = strtoupper($request->nama_pihak);
-
-        // Tambahkan prefix PAN- jika 'is_acara' dicentang
         if ($request->boolean('is_acara')) {
-            if (!str_starts_with($kode, 'PAN-')) {
-                $kode = 'PAN-' . $kode;
-            }
+            $base = strtoupper($request->input('nama_pihak'));
+            $kode = str_starts_with($base, 'PAN-') ? $base : ('PAN-' . $base);
+        } else {
+            $kode = strtoupper($request->input('kode_pihak'));
         }
 
         $letterCode->update([
             'kode_pihak' => $kode,
             'nama_pihak' => $request->input('nama_pihak'),
-            // 'is_acara' => $request->boolean('is_acara'), // (Opsional)
         ]);
 
         return redirect()->route('letter_code.index')

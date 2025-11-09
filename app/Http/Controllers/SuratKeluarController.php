@@ -103,7 +103,7 @@ class SuratKeluarController extends Controller
         }
         $surat->penandatangans()->sync($attach);
 
-        return redirect()->route('outgoing-letters.show', $surat)
+        return redirect()->route('outgoing-letters.show', ['outgoing_letter' => $surat->id])
             ->with('success', 'Surat berhasil dibuat dengan nomor: ' . $nomorSurat);
     }
 

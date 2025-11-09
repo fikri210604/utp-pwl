@@ -45,3 +45,21 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+  (function(){
+    const cb = document.getElementById('is_acara');
+    const kode = document.getElementById('kode_pihak');
+    function toggleKode(){
+      const isAcara = cb && cb.checked;
+      if (kode) {
+        kode.disabled = !!isAcara;
+        kode.placeholder = isAcara ? 'Akan di-generate: PAN-{NAMA PIHAK/ACARA}' : '';
+      }
+    }
+    if (cb) { cb.addEventListener('change', toggleKode); }
+    toggleKode();
+  })();
+  </script>
+@endpush
