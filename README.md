@@ -71,7 +71,7 @@ Fitur pencarian surat masuk dan keluar berdasarkan kata kunci tertentu.
 | **Framework** | Laravel 10.x |
 | **Backend** | PHP 8.x |
 | **Frontend** | Vite, Bootstrap, Blade |
-| **Database** | MySQL |
+| **Database** | PostgreeSQL |
 | **Testing** | PHPUnit |
 | **Deployment** | Vercel / Server lokal (Laragon, XAMPP, dll) |
 
@@ -86,6 +86,7 @@ Fitur pencarian surat masuk dan keluar berdasarkan kata kunci tertentu.
 | `surat_keluars` | Menyimpan data surat keluar |
 | `penandatangans` | Menyimpan data pejabat penandatangan |
 | `surat_penandatangans` | Tabel pivot relasi antara surat keluar dan penandatangan |
+| `kode_surat` | Tabel untuk Menyimpan Prefiks Surat |
 
 ---
 
