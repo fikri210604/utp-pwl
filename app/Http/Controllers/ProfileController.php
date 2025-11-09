@@ -38,11 +38,11 @@ class ProfileController extends Controller
             'password' => ['nullable', 'confirmed', Password::min(8)],
         ]);
 
-        $user->name = $validated['name'];
-        $user->email = $validated['email'];
+        $user->name = $request->input('name');
+        $user->email = $request->input('email');
 
         if ($request->filled('password')) {
-            $user->password = Hash::make($validated['password']);
+            $user->password = Hash::make($request->input('password'));
         }
 
         $user->save();

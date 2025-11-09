@@ -43,7 +43,7 @@
                     <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton-{{ $u->id }}" data-bs-toggle="dropdown" aria-expanded="false" title="Pilih Aksi">
                         <i class="bi bi-three-dots-vertical"></i>
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-{{ $u->id }}">
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton-{{ $u->id }}">
                         <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editUserModal-{{ $u->id }}"><i class="bi bi-pencil-fill me-2"></i>Edit</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteUserModal-{{ $u->id }}"><i class="bi bi-trash-fill me-2"></i>Hapus</a></li>
@@ -130,11 +130,16 @@
           </tbody>
       </div>
 
-      @if ($user->hasPages())
-      <div class="p-3 border-top">
-        {{ $user->links() }}
+      <div class="p-3 border-top d-flex justify-content-between align-items-center">
+        <div class="text-muted small">
+          Menampilkan {{ $user->firstItem() ?? 0 }}-{{ $user->lastItem() ?? 0 }} dari {{ $user->total() }} data
+        </div>
+        <div>
+          @if ($user->hasPages())
+            {{ $user->appends(request()->except('page'))->links() }}
+          @endif
+        </div>
       </div>
-      @endif
     </div>
   </div>
 

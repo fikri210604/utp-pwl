@@ -1,50 +1,70 @@
 @php
-    $isPreview = isset($preview) && $preview;
-    $L = $letter ?? null;
+  $isPreview = isset($preview) && $preview;
+  $L = $letter ?? null;
 @endphp
 
 <style>
-  .letter-container { font-size: 12pt; line-height: 1.45; }
-  .letter-section { margin-bottom: 14px; }
-  .signers { margin-top: 60px; }
-  .signers .slot { text-align: right; margin-bottom: 40px; }
-  .meta { margin-top: 6px; margin-bottom: 12px; }
-  .meta .row { display: flex; justify-content: space-between; }
+  .letter-container {
+    font-size: 12pt;
+    line-height: 1.45;
+  }
+
+  .letter-section {
+    margin-bottom: 14px;
+  }
+
+  .signers {
+    margin-top: 60px;
+  }
+
+  .signers .slot {
+    text-align: right;
+    margin-bottom: 40px;
+  }
+
+  .meta {
+    margin-top: 6px;
+    margin-bottom: 12px;
+  }
+
+  .meta .row {
+    display: flex;
+    justify-content: space-between;
+  }
 </style>
 
 <div class="letter-container">
   @include('templates.partials.kop')
+  <div class="text-center letter-section">
+    <strong>SURAT PEMINJAMAN</strong>
+  </div>
   <div class="mb-2">Nomor: {{ $L->nomor_surat ?? '____/____/____' }}</div>
-  <div class="mb-2">Lampiran: -</div>
-  <div class="mb-2">Perihal: Undangan - {{ $L->perihal ?? '________________' }}</div>
+  <div class="mb-2">Tanggal:
+    {{ isset($L->tanggal_surat) ? \Illuminate\Support\Carbon::parse($L->tanggal_surat)->format('d/m/Y') : '___/___/____' }}
+  </div>
   <div class="mb-3">Kepada Yth: {{ $L->tujuan ?? '________________________' }}</div>
 
-  <p>Assalamualaikum Warahmatullahi Wabarakatuh</p>
   <p>
-    Segala puji bagi Allah Dzat  yang telah menciptakan langit dan bumi beserta isinya. Shalawat serta salam semoga tetap tercurah kepada pemimpin terbaik umat, suri tauladan kita yaitu Rasulullah Muhammad SAW.
+    Sehubungan dengan kebutuhan kegiatan, kami bermaksud mengajukan peminjaman fasilitas/barang sebagai berikut.
   </p>
-  <p>
-    Sehubungan dengan diadakannya {{ $L->nama_kegiatan ?? 'acara' }} maka kami bermaksud   mengundang   Saudara   untuk   hadir   dalam   acara   yang   Insya  Allah   akan dilaksanakan pada:
-  </p>
-  <div class="mb-2">
-    Hari, Tanggal           : {{ $L->hari_tanggal ?? (isset($L->tanggal_surat) ? \Illuminate\Support\Carbon::parse($L->tanggal_surat)->translatedFormat('l, d F Y') : '________') }}<br>
-    Tempat                  : {{ $L->lokasi_acara ?? '________' }}<br>
-    Waktu                   : {{ $L->waktu_acara ?? '________' }}
-  </div>
-  <p>
-    Demikian surat ini kami buat. Atas bantuan dan partisipasi dalam mengsukseskan acara kami ucapkan terimakasih. Semoga Allah SWT melindungi dan membalas segala amal perbuatan kita.
-  </p>
-  <p>
-    <em>Intansyurullaha yansyurkum wayutsabbit aqdamakum</em> Jika kalian menolong agama Allah, maka Allah akan menolong kalian dan menguatkan pijakan kalian.
-  </p>
-  <p>(QS. Muhammad: 7)</p>
-  <p>Wassalamualaikum Warahmatullahi Wabarakatuh</p>
+  <ul>
+    <li>Hari/Tanggal: {{ $L->hari_tanggal ?? '________' }}</li>
+    <li>Waktu: {{ $L->waktu_acara ?? '________' }}</li>
+  </ul>
+
+  @if(!$isPreview && !empty($L?->isi_tambahan))
+    <p>{!! nl2br(e($L->isi_tambahan)) !!}</p>
+  @else
+    <p class="text-muted">(Detail barang/ruangan yang dipinjam ditampilkan di sini)</p>
+  @endif
 
   <div class="signers">
     <div class="text-end">Hormat kami,</div>
     @php
       $signers = $L?->penandatangans ?? collect([]);
-      if ($signers->isEmpty() && $L?->penandatangan) { $signers = collect([$L->penandatangan]); }
+      if ($signers->isEmpty() && $L?->penandatangan) {
+        $signers = collect([$L->penandatangan]);
+      }
     @endphp
     @forelse($signers->chunk(2) as $row)
       <div class="row d-flex justify-content-between mt-4 mb-4">
@@ -92,5 +112,4 @@
       </div>
     @endforelse
   </div>
-</div>
 

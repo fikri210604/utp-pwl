@@ -72,7 +72,16 @@
         </tbody>
       </table>
     </div>
-    <div class="card-footer">{{ $penandatangan->links() }}</div>
+    <div class="card-footer d-flex justify-content-between align-items-center">
+      <div class="text-muted small">
+        Menampilkan {{ $penandatangan->firstItem() ?? 0 }}-{{ $penandatangan->lastItem() ?? 0 }} dari {{ $penandatangan->total() }} data
+      </div>
+      <div>
+        @if ($penandatangan->hasPages())
+          {{ $penandatangan->appends(request()->except('page'))->links() }}
+        @endif
+      </div>
+    </div>
   </div>
   <!-- Modal: Create Penandatangan -->
   <div class="modal fade" id="createPenandatanganModal" tabindex="-1" aria-hidden="true">

@@ -17,7 +17,7 @@
     @yield('scripts-head')
     
 </head>
-<body class="bg-light">
+<body class="bg-light" style="background-color: #f0f0f0 !important;">
     
     @auth
     @include('layouts.navbar')
@@ -50,6 +50,10 @@
       /* Sidebar overlay */
       .sidebar-overlay { display:none; position: fixed; top: 56px; left:0; right:0; bottom:0; background: rgba(0,0,0,.35); z-index: 1040; }
       .sidebar-overlay.show { display:block; }
+      /* Ensure dropdowns inside responsive tables can overflow vertically */
+      .table-responsive { overflow-y: visible; }
+      /* Raise z-index for dropdown menus in tables */
+      .table .dropdown-menu { z-index: 1055; }
       /* Remove sidebar column height on mobile to let main content rise to top */
       @media (max-width: 991.98px) {
         #sidebarColumn { height: 0 !important; min-height: 0 !important; padding: 0 !important; border: 0 !important; }

@@ -45,12 +45,12 @@
                                 <tr>
                                     <td>{{ $kode->kode_pihak }}</td>
                                     <td>{{ $kode->nama_pihak }}</td>
-                                    <td class="text-center">
+                                    <td class="text-center" style="width:1%; white-space: nowrap;">
                                         <div class="dropdown">
                                             <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton-{{ $kode->id }}" data-bs-toggle="dropdown" aria-expanded="false" title="Pilih Aksi">
                                                 <i class="bi bi-three-dots-vertical"></i>
                                             </button>
-                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-{{ $kode->id }}">
+                                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton-{{ $kode->id }}">
                                                 <li><a class="dropdown-item" href="{{ route('letter_code.edit', $kode) }}"><i class="bi bi-pencil-fill me-2"></i>Edit</a></li>
                                                 <li><hr class="dropdown-divider"></li>
                                                 <li>
@@ -79,11 +79,16 @@
                     </table>
                 </div>
 
-                @if ($letter_code->hasPages())
-                <div class="mt-6 d-flex justify-content-start">
-                    {{ $letter_code->appends(request()->except('page'))->links() }}
+                <div class="mt-3 d-flex justify-content-between align-items-center">
+                    <div class="text-muted small">
+                        Menampilkan {{ $letter_code->firstItem() ?? 0 }}-{{ $letter_code->lastItem() ?? 0 }} dari {{ $letter_code->total() }} data
+                    </div>
+                    <div>
+                        @if ($letter_code->hasPages())
+                            {{ $letter_code->appends(request()->except('page'))->links() }}
+                        @endif
+                    </div>
                 </div>
-                @endif
             </div>
         </div>
     </div>

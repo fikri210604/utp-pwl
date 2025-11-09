@@ -42,7 +42,7 @@
                                         <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton-{{ $letter->id }}" data-bs-toggle="dropdown" aria-expanded="false" title="Pilih Aksi">
                                             <i class="bi bi-three-dots-vertical"></i>
                                         </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-{{ $letter->id }}">
+                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton-{{ $letter->id }}">
                                             <li><a class="dropdown-item" href="{{ route('incoming-letters.show', $letter) }}"><i class="bi bi-eye-fill me-2"></i>Detail</a></li>
                                             <li><hr class="dropdown-divider"></li>
                                             <li>
@@ -63,11 +63,16 @@
                     </table>
                 </div>
 
-                @if ($letters->hasPages())
-                <div class="mt-3">
-                    {{ $letters->links() }}
+                <div class="mt-3 d-flex justify-content-between align-items-center">
+                    <div class="text-muted small">
+                        Menampilkan {{ $letters->firstItem() ?? 0 }}-{{ $letters->lastItem() ?? 0 }} dari {{ $letters->total() }} data
+                    </div>
+                    <div>
+                        @if ($letters->hasPages())
+                            {{ $letters->appends(request()->except('page'))->links() }}
+                        @endif
+                    </div>
                 </div>
-                @endif
             </div>
         </div>
     </div>

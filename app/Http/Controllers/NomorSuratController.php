@@ -48,7 +48,7 @@ class NomorSuratController extends Controller
             'is_acara' => 'nullable|boolean',
         ]);
 
-        $kode = strtoupper($request->kode_pihak);
+        $kode = strtoupper($request->nama_pihak);
 
         // Tambahkan prefix PAN- jika 'is_acara' dicentang
         if ($request->boolean('is_acara')) {
@@ -59,8 +59,8 @@ class NomorSuratController extends Controller
 
         NomorSurat::create([
             'kode_pihak' => $kode,
-            'nama_pihak' => $request->nama_pihak,
-            // 'is_acara' => $request->boolean('is_acara'), // (Opsional: jika Anda punya kolom ini)
+            'nama_pihak' => request('nama_pihak'),
+            // 'is_acara' => request()->boolean('is_acara'), // (Opsional: jika Anda punya kolom ini)
         ]);
 
         return redirect()->route('letter_code.index')
@@ -84,12 +84,11 @@ class NomorSuratController extends Controller
     {
         $request->validate([
             'nama_pihak' => 'required|string|max:100',
-            // Abaikan rule unique untuk ID $letterCode saat ini
             'kode_pihak' => 'required|string|max:50|unique:nomor_surat,kode_pihak,' . $letterCode->id,
             'is_acara' => 'nullable|boolean',
         ]);
 
-        $kode = strtoupper($request->kode_pihak);
+        $kode = strtoupper($request->nama_pihak);
 
         // Tambahkan prefix PAN- jika 'is_acara' dicentang
         if ($request->boolean('is_acara')) {
@@ -100,7 +99,7 @@ class NomorSuratController extends Controller
 
         $letterCode->update([
             'kode_pihak' => $kode,
-            'nama_pihak' => $request->nama_pihak,
+            'nama_pihak' => $request->input('nama_pihak'),
             // 'is_acara' => $request->boolean('is_acara'), // (Opsional)
         ]);
 

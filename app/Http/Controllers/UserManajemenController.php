@@ -50,12 +50,12 @@ class UserManajemenController extends Controller
         }
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-            'jabatan' => $request->jabatan,
-            'tanda_tangan' => $pathTandaTangan
+            'name'         => request('name'),
+            'email'        => request('email'),
+            'password'     => Hash::make(request('password')),
+            'role'         => request('role'),
+            'jabatan'      => request('jabatan'),
+            'tanda_tangan' => $pathTandaTangan,
         ]);
 
         return redirect()->route('user_manajemen.index', compact('user'))->with('success', 'User berhasil ditambahkan');
@@ -79,14 +79,14 @@ class UserManajemenController extends Controller
         ]);
 
         $data = [
-            'name' => $request->name,
-            'email' => $request->email,
-            'role' => $request->role,
-            'jabatan' => $request->jabatan,
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'role' => $request->input('role'),
+            'jabatan' => $request->input('jabatan'),
         ];
 
         if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->password);
+            $data['password'] = Hash::make($request->input('password'));
         }
 
         if ($request->hasFile('tanda_tangan')) {

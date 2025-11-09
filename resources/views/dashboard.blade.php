@@ -92,7 +92,10 @@
                 <div class="card-body">
                     <div class="list-group list-group-flush">
                         @forelse ($recentLetters as $letter)
-                            <a href="{{ $letter->type == 'in' ? route('incoming-letters.show', $letter->id) : route('outgoing-letters.show', $letter->id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0">
+                            <a href="{{ $letter->type == 'in' 
+                                ? route('incoming-letters.show', $letter) 
+                                : route('outgoing-letters.show', $letter) }}" 
+                                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0">
                                 <div>
                                     <span class="badge bg-{{ $letter->type == 'in' ? 'primary' : 'success' }} me-2">{{ $letter->type == 'in' ? 'Masuk' : 'Keluar' }}</span>
                                     <strong>{{ \Illuminate\Support\Str::limit($letter->perihal, 30) }}</strong>

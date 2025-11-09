@@ -40,25 +40,29 @@ class SuratMasukController extends Controller
             'keterangan' => 'nullable|string',
             'file' => ['required', 'file', 'mimes:pdf', 'max:10240'],
         ]);
+        try {
+            // Simpan file ke storage (folder surat-masuk)
+            $path = $request->file('file')->store('surat-masuk', 'public');
 
-        // Simpan file ke storage (folder surat-masuk)
-        $path = $request->file('file')->store('surat-masuk', 'public');
+            // Simpan ke database
+            $letter = SuratMasuk::create([
+                'nomor_surat'      => request('nomor_surat'),
+                'tanggal_surat'    => request('tanggal_surat'),
+                'pengirim'         => request('pengirim'),
+                'perihal'          => request('perihal'),
+                'tanggal_diterima' => request('tanggal_diterima'),
+                'keterangan'       => request('keterangan'),
+                'penerima_id'      => auth()->id(),
+                'file_path'        => $path,
+            ]);
 
-        // Simpan ke database
-        $letter = SuratMasuk::create([
-            'nomor_surat' => $validated['nomor_surat'],
-            'tanggal_surat' => $validated['tanggal_surat'],
-            'pengirim' => $validated['pengirim'],
-            'penerima_id' => auth()->id(),
-            'perihal' => $validated['perihal'],
-            'tanggal_diterima' => $validated['tanggal_diterima'] ?? null,
-            'keterangan' => $validated['keterangan'] ?? null,
-            'file_path' => $path,
-        ]);
-
-        return redirect()
-            ->route('incoming-letters.show', $letter)
-            ->with('success', 'Surat masuk berhasil disimpan.');
+            return redirect()
+                ->route('incoming-letters.show', $letter)
+                ->with('success', 'Surat masuk berhasil disimpan.');
+        } catch (\Throwable $e) {
+            report($e);
+            return back()->withErrors(['surat' => 'Gagal menyimpan surat masuk.'])->withInput();
+        }
     }
 
     public function show(SuratMasuk $incoming_letter)
@@ -68,8 +72,13 @@ class SuratMasukController extends Controller
 
     public function destroy(SuratMasuk $incoming_letter)
     {
-        if ($incoming_letter->file_path && Storage::disk('public')->exists($incoming_letter->file_path)) {
-            Storage::disk('public')->delete($incoming_letter->file_path);
+        try {
+            if ($incoming_letter->file_path && Storage::disk('public')->exists($incoming_letter->file_path)) {
+                Storage::disk('public')->delete($incoming_letter->file_path);
+            }
+        } catch (\Throwable $e) {
+            report($e);
+            // lanjut hapus record meski penghapusan file gagal
         }
         $incoming_letter->delete();
         return redirect()->route('incoming-letters.index')->with('success', 'Surat masuk dihapus.');

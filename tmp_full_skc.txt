@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class SuratKeluarController extends Controller
 {
@@ -50,7 +49,7 @@ class SuratKeluarController extends Controller
             'perihal_surat_id'  => 'required|exists:perihal_surats,perihal_surat_id',
             'penandatangan_ids' => 'required|array|min:1',
             'penandatangan_ids.*' => 'exists:penandatangans,penandatangan_id',
-            'penuju_surat'      => 'required|in:A (Dalam Universitas Lampung),B (Luar Universitas Lampung),C (Surat Khusus)',
+            'penuju_surat'      => 'required|in:A,B,C',
         ]);
 
         // Ambil pihak
@@ -80,19 +79,19 @@ class SuratKeluarController extends Controller
 
         // Simpan
         $surat = SuratKeluar::create([
-            'id'                => (string) Str::uuid(),
+            'id'                => (string) \Illuminate\Support\Str::uuid(),
             'nomor_surat'       => $nomorSurat,
-            'tanggal_surat'     => request('tanggal_surat'),
-            'tujuan'            => request('tujuan'),
+            'tanggal_surat'     => $validated['tanggal_surat'],
+            'tujuan'            => $validated['tujuan'],
             'user_id'           => auth()->id(),
-            'kode_pihak_id'     => request('nomor_surat_id'),
-            'perihal_surat_id'  => request('perihal_surat_id'),
-            'penandatangan_id'  => request()->input('penandatangan_ids.0'), 
-            'nama_kegiatan'     => request('nama_kegiatan'),
-            'lokasi_acara'      => request('lokasi_acara'),
-            'hari_tanggal'      => request('hari_tanggal'),
-            'waktu_acara'       => request('waktu_acara'),
-            'isi_tambahan'      => request('isi_tambahan'),
+            'kode_pihak_id'     => $validated['nomor_surat_id'],
+            'perihal_surat_id'  => $validated['perihal_surat_id'],
+            'penandatangan_id'  => $validated['penandatangan_ids'][0] ?? null, // legacy single
+            'nama_kegiatan'     => $request->input('nama_kegiatan'),
+            'lokasi_acara'      => $request->input('lokasi_acara'),
+            'hari_tanggal'      => $request->input('hari_tanggal'),
+            'waktu_acara'       => $request->input('waktu_acara'),
+            'isi_tambahan'      => $request->input('isi_tambahan'),
             'status_surat'      => 'draft',
         ]);
 
@@ -132,7 +131,7 @@ class SuratKeluarController extends Controller
             'perihal_surat_id' => 'required|exists:perihal_surats,perihal_surat_id',
             'penandatangan_ids' => 'sometimes|array|min:1',
             'penandatangan_ids.*'=> 'exists:penandatangans,penandatangan_id',
-            'penuju_surat'      => 'nullable|in:A (Dalam Universitas Lampung),B (Luar Universitas Lampung),C (Surat Khusus)',
+            'penuju_surat'      => 'nullable|in:A,B,C',
         ]);
 
         // Susun ulang nomor_surat sesuai format: URUT/PENUJU/KODE/ROIS/FMIPA/UL/ROMAWI/TAHUN
@@ -161,10 +160,10 @@ class SuratKeluarController extends Controller
 
         $outgoing_letter->update([
             'nomor_surat'       => $nomorComposed,
-            'tanggal_surat'     => $request->input('tanggal_surat'),
-            'tujuan'            => $request->input('tujuan'),
-            'perihal_surat_id'  => $request->input('perihal_surat_id'),
-            'penandatangan_id'  => $request->input('penandatangan_ids.0') ?? $outgoing_letter->penandatangan_id,
+            'tanggal_surat'     => $validated['tanggal_surat'],
+            'tujuan'            => $validated['tujuan'],
+            'perihal_surat_id'  => $validated['perihal_surat_id'],
+            'penandatangan_id'  => $validated['penandatangan_ids'][0] ?? $outgoing_letter->penandatangan_id,
             'nama_kegiatan'     => $request->input('nama_kegiatan'),
             'lokasi_acara'      => $request->input('lokasi_acara'),
             'hari_tanggal'      => $request->input('hari_tanggal'),
@@ -186,44 +185,37 @@ class SuratKeluarController extends Controller
 
     public function generateSuratKeluar(SuratKeluar $outgoing_letter)
     {
-        try {
-            $outgoing_letter->load(['perihalSurat','penandatangan','nomorSurat']);
-            // Ambil nama view template dari tabel perihal
-            $view = $outgoing_letter->perihalSurat->template_view ?? 'templates.undangan';
-            if (!view()->exists($view)) {
-                $view = 'templates.undangan';
-            }
+        $outgoing_letter->load(['perihalSurat','penandatangan','nomorSurat']);
+        // Ambil nama view template dari tabel perihal
+        $view = $outgoing_letter->perihalSurat->template_view
+            ?? 'templates.undangan';
 
-            // Gunakan filename aman (hindari karakter "/" membuat subfolder)
-            $safeFilename = preg_replace('/[^\w\-]+/','-', $outgoing_letter->nomor_surat) . '.pdf';
+        // Gunakan filename aman (hindari karakter "/" membuat subfolder)
+        $safeFilename = preg_replace('/[^\w\-]+/','-', $outgoing_letter->nomor_surat) . '.pdf';
 
-            // Siapkan logo kop sebagai data URI agar DomPDF bisa merender
-            $leftPath = public_path(config('kop.left_logo'));
-            $rightPath = public_path(config('kop.right_logo'));
-            $kopLeft = (is_file($leftPath)) ? ('data:image/'.pathinfo($leftPath, PATHINFO_EXTENSION).';base64,'.base64_encode(@file_get_contents($leftPath))) : null;
-            $kopRight = (is_file($rightPath)) ? ('data:image/'.pathinfo($rightPath, PATHINFO_EXTENSION).';base64,'.base64_encode(@file_get_contents($rightPath))) : null;
+        // Siapkan logo kop sebagai data URI agar DomPDF bisa merender
+        $leftPath = public_path(config('kop.left_logo'));
+        $rightPath = public_path(config('kop.right_logo'));
+        $kopLeft = (is_file($leftPath)) ? ('data:image/'.pathinfo($leftPath, PATHINFO_EXTENSION).';base64,'.base64_encode(@file_get_contents($leftPath))) : null;
+        $kopRight = (is_file($rightPath)) ? ('data:image/'.pathinfo($rightPath, PATHINFO_EXTENSION).';base64,'.base64_encode(@file_get_contents($rightPath))) : null;
 
-            $pdf = Pdf::loadView($view, [
-                    'letter' => $outgoing_letter,
-                    'kopLeft' => $kopLeft,
-                    'kopRight'=> $kopRight,
-                ])
-                ->setPaper('a4', 'portrait');
+        $pdf = Pdf::loadView($view, [
+                'letter' => $outgoing_letter,
+                'kopLeft' => $kopLeft,
+                'kopRight'=> $kopRight,
+            ])
+            ->setPaper('a4', 'portrait');
 
-            Storage::disk('public')->makeDirectory('surat_keluars');
-            $path = "surat_keluars/{$safeFilename}";
-            $pdf->save(Storage::disk('public')->path($path));
+        Storage::disk('public')->makeDirectory('surat_keluars');
+        $path = "surat_keluars/{$safeFilename}";
+        $pdf->save(Storage::disk('public')->path($path));
 
-            $outgoing_letter->update([
-                'file_pdf'     => $path,
-                'status_surat' => 'dicetak'
-            ]);
+        $outgoing_letter->update([
+            'file_pdf'     => $path,
+            'status_surat' => 'dicetak'
+        ]);
 
-            return Storage::disk('public')->download($path, $safeFilename);
-        } catch (\Throwable $e) {
-            report($e);
-            return back()->withErrors(['pdf' => 'Gagal menghasilkan PDF surat keluar.'])->withInput();
-        }
+        return Storage::disk('public')->download($path, $safeFilename);
     }
 
     public function previewTemplate(Request $request)
@@ -242,16 +234,12 @@ class SuratKeluarController extends Controller
 
     public function destroy(SuratKeluar $outgoing_letter)
     {
-        try {
-            if ($outgoing_letter->file_pdf) {
-                Storage::disk('public')->delete($outgoing_letter->file_pdf);
-            }
-        } catch (\Throwable $e) {
-            report($e);
-            // lanjut hapus datanya walau file gagal dihapus
+        if ($outgoing_letter->file_pdf) {
+            Storage::disk('public')->delete($outgoing_letter->file_pdf);
         }
 
         $outgoing_letter->delete();
         return back()->with('success', 'Surat berhasil dihapus.');
     }
 }
+

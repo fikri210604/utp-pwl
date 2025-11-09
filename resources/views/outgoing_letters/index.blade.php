@@ -44,7 +44,7 @@
                                         <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton-{{ $letter->id }}" data-bs-toggle="dropdown" aria-expanded="false" title="Pilih Aksi">
                                             <i class="bi bi-three-dots-vertical"></i>
                                         </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-{{ $letter->id }}">
+                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton-{{ $letter->id }}">
                                             <li><a class="dropdown-item" href="{{ route('outgoing-letters.show', $letter) }}"><i class="bi bi-eye-fill me-2"></i>Detail</a></li>
                                             <li><a class="dropdown-item" href="{{ route('outgoing-letters.edit', $letter) }}"><i class="bi bi-pencil-fill me-2"></i>Edit</a></li>
                                             <li><a class="dropdown-item" target="_blank" href="{{ route('outgoing-letters.pdf', $letter) }}"><i class="bi bi-printer-fill me-2"></i>Print</a></li>
@@ -66,11 +66,16 @@
                         </tbody>
                     </table>
                 </div>
-               @if ($letters->hasPages())
-                <div class="mt-6 d-flex justify-content-start">
-                    {{ $letters->appends(request()->except('page'))->links() }}
+               <div class="mt-3 d-flex justify-content-between align-items-center">
+                    <div class="text-muted small">
+                        Menampilkan {{ $letters->firstItem() ?? 0 }}-{{ $letters->lastItem() ?? 0 }} dari {{ $letters->total() }} data
+                    </div>
+                    <div>
+                        @if ($letters->hasPages())
+                            {{ $letters->appends(request()->except('page'))->links() }}
+                        @endif
+                    </div>
                 </div>
-                @endif
             </div>
         </div>
     </div>

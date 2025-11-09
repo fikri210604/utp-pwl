@@ -38,24 +38,19 @@ class PenandatanganController extends Controller
             'gambar_tandatangan'      => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048'
         ]);
 
-        try {
-            $path = null;
-            if ($request->hasFile('gambar_tandatangan')) {
-                $path = $request->file('gambar_tandatangan')->store('tanda_tangan', 'public');
-            }
-
-            Penandatangan::create([
-                'nama_penandatangan'    => request('nama_penandatangan'),
-                'nip_npm_penandatangan' => request('nip_npm_penandatangan'),
-                'jabatan_penandatangan' => request('jabatan_penandatangan'),
-                'gambar_tandatangan'    => $path,
-            ]);
-
-            return back()->with('success', 'Penandatangan berhasil ditambahkan.');
-        } catch (\Throwable $e) {
-            report($e);
-            return back()->withErrors(['penandatangan' => 'Gagal menambahkan penandatangan.'])->withInput();
+        $path = null;
+        if ($request->hasFile('gambar_tandatangan')) {
+            $path = $request->file('gambar_tandatangan')->store('tanda_tangan', 'public');
         }
+
+        Penandatangan::create([
+            'nama_penandatangan'    => $validated['nama_penandatangan'],
+            'nip_npm_penandatangan' => $validated['nip_npm_penandatangan'] ?? null,
+            'jabatan_penandatangan' => $validated['jabatan_penandatangan'],
+            'gambar_tandatangan'    => $path
+        ]);
+
+        return back()->with('success', 'Penandatangan berhasil ditambahkan.');
     }
 
     /**
@@ -80,10 +75,10 @@ class PenandatanganController extends Controller
         }
 
         $penandatangan->update([
-            'nama_penandatangan'    => $request->input('nama_penandatangan'),
-            'nip_npm_penandatangan' => $request->input('nip_npm_penandatangan'),
-            'jabatan_penandatangan' => $request->input('jabatan_penandatangan'),
-            'gambar_tandatangan'    => $path,
+            'nama_penandatangan'    => $validated['nama_penandatangan'],
+            'nip_npm_penandatangan' => $validated['nip_npm_penandatangan'] ?? null,
+            'jabatan_penandatangan' => $validated['jabatan_penandatangan'],
+            'gambar_tandatangan'    => $path
         ]);
 
         return back()->with('success', 'Penandatangan berhasil diperbarui.');
@@ -103,3 +98,4 @@ class PenandatanganController extends Controller
         return back()->with('success', 'Penandatangan berhasil dihapus.');
     }
 }
+

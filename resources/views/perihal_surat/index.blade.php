@@ -85,7 +85,16 @@
             </tbody>
           </table>
         </div>
-        <div class="card-footer">{{ $perihal_surat->links() }}</div>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+          <div class="text-muted small">
+            Menampilkan {{ $perihal_surat->firstItem() ?? 0 }}-{{ $perihal_surat->lastItem() ?? 0 }} dari {{ $perihal_surat->total() }} data
+          </div>
+          <div>
+            @if ($perihal_surat->hasPages())
+              {{ $perihal_surat->appends(request()->except('page'))->links() }}
+            @endif
+          </div>
+        </div>
       </div>
     </div>
     <div class="col-lg-5">

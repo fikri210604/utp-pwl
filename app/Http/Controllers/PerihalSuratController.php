@@ -32,13 +32,11 @@ class PerihalSuratController extends Controller
             'template'      => 'nullable|string|max:255', // legacy form field name
         ]);
 
-        $data = [
-            'nama_perihal'  => $validated['nama_perihal'],
-            'jenis_surat'   => $validated['jenis_surat'],
-            'template_view' => $validated['template_view'] ?? $validated['template'] ?? null,
-        ];
-
-        PerihalSurat::create($data);
+        PerihalSurat::create([
+            'nama_perihal'  => request('nama_perihal'),
+            'jenis_surat'   => request('jenis_surat'),
+            'template_view' => request('template_view') ?? request('template'),
+        ]);
 
         return back()->with('success', 'Perihal surat berhasil ditambahkan.');
     }
@@ -52,13 +50,11 @@ class PerihalSuratController extends Controller
             'template'      => 'nullable|string|max:255',
         ]);
 
-        $data = [
-            'nama_perihal'  => $validated['nama_perihal'],
-            'jenis_surat'   => $validated['jenis_surat'],
-            'template_view' => $validated['template_view'] ?? $validated['template'] ?? $perihalSurat->template_view,
-        ];
-
-        $perihalSurat->update($data);
+        $perihalSurat->update([
+            'nama_perihal'  => $request->input('nama_perihal'),
+            'jenis_surat'   => $request->input('jenis_surat'),
+            'template_view' => $request->input('template_view') ?? $request->input('template') ?? $perihalSurat->template_view,
+        ]);
 
         return back()->with('success', 'Perihal surat berhasil diperbarui.');
     }
