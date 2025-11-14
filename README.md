@@ -100,6 +100,7 @@ Fitur pencarian surat masuk dan keluar berdasarkan kata kunci tertentu.
 | • Ahmad Fikri Hanif | 2317051073 |
 | • Intan Nur Laila | 2317051109 |
 | • Muhammad Alvin | 2317051040 |
+| • Daffa Muhammad Al Fatih | 2317051047 |
 | • Rahayu Indah Lestari | 2317051073 |
 | **Tujuan** | Implementasi konsep MVC dan CRUD dalam sistem manajemen surat digital |
 | **Konteks** | Ujian Tengah Praktikum Pemrograman Web Lanjut |
